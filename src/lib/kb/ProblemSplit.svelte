@@ -42,6 +42,13 @@
     {/each}
   </tbody>
 </table>
+
+{#each split.groups.filter((g) => g.problem === 'shift') as g (g.problem)}
+  <p class="small">
+    The desk counts every report where it is filed by tenant, so the {g.reports.length} <code>shift</code> reports are also
+    in {Object.entries(g.alsoFiled).map(([c, n]) => `${c} (${n})`).join(', ')} above. They read as a one-day move, not a flip.
+  </p>
+{/each}
 {:else}
   {#each split.groups as g (g.problem)}
     {@const r = g.reports[0]}

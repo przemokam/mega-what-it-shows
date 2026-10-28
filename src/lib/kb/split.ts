@@ -12,14 +12,9 @@ export const PROBLEMS: readonly { problem: Problem; title: string; issue: number
 
 export const ISSUES = 'https://github.com/przemokam/mega-what-it-shows/issues';
 
-// A report the desk read as a one-day move (desk-notes.json) is not a flip: the day moved, the month
-// did not. That is its own problem, whatever its tenant's form says. Everything else keeps the cause
-// causes.ts gives it.
-export function problemOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem | 'unplaced' {
-  if (oneDayMove.includes(r.id)) return 'shift';
-  return causeOf(r, t) ?? 'unplaced';
-}
-
+// Counted the way the desk counts (CauseTable, desk-notes.json): every report under the cause it is
+// filed under by tenant. A one-day move (desk-notes.json) is its own problem too: the day moved, the
+// month did not. Those reports also stay counted where they are filed, as the desk footnotes them.
 export type ProblemGroup = {
   problem: Problem | 'unplaced';
   reports: Report[];
@@ -27,7 +22,22 @@ export type ProblemGroup = {
   channels: Record<string, number>;
   firstSeen: string;
   lastSeen: string;
+  // For `shift`: how many of its reports are also counted under each filed cause.
+  alsoFiled: Record<string, number>;
 };
+
+function group(problem: ProblemGroup['problem'], rs: Report[], filed: (r: Report) => string): ProblemGroup {
+  const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
+  return {
+    problem,
+    reports: rs,
+    tenants: [...new Set(rs.map((r) => r.tenant))].sort(),
+    channels: rs.reduce<Record<string, number>>((n, r) => ({ ...n, [r.channel]: (n[r.channel] ?? 0) + 1 }), {}),
+    firstSeen: days[0],
+    lastSeen: days[days.length - 1],
+    alsoFiled: problem === 'shift' ? rs.reduce<Record<string, number>>((n, r) => ({ ...n, [filed(r)]: (n[filed(r)] ?? 0) + 1 }), {}) : {},
+  };
+}
 
 export function splitTicket(
   all: Report[],
@@ -36,24 +46,12 @@ export function splitTicket(
   oneDayMove: readonly string[],
 ): { merged: Report[]; groups: ProblemGroup[] } {
   const merged = uniqueById(all).filter((r) => r.mergedInto === ticket);
-  const by = new Map<ProblemGroup['problem'], Report[]>();
-  for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDayMove);
-    by.set(p, [...(by.get(p) ?? []), r]);
-  }
-  const order = [...PROBLEMS.map((p) => p.problem), 'unplaced'];
-  const groups = [...by.entries()]
-    .map(([problem, rs]) => {
-      const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
-      return {
-        problem,
-        reports: rs,
-        tenants: [...new Set(rs.map((r) => r.tenant))].sort(),
-        channels: rs.reduce<Record<string, number>>((n, r) => ({ ...n, [r.channel]: (n[r.channel] ?? 0) + 1 }), {}),
-        firstSeen: days[0],
-        lastSeen: days[days.length - 1],
-      };
-    })
-    .sort((a, b) => order.indexOf(a.problem) - order.indexOf(b.problem));
-  return { merged, groups };
+  const filed = (r: Report) => causeOf(r, tenantOf(r)) ?? 'unplaced';
+  const groups = [
+    group('parser', merged.filter((r) => filed(r) === 'parser'), filed),
+    group('hint', merged.filter((r) => filed(r) === 'hint'), filed),
+    group('shift', merged.filter((r) => oneDayMove.includes(r.id)), filed),
+    group('unplaced', merged.filter((r) => filed(r) === 'unplaced'), filed),
+  ];
+  return { merged, groups: groups.filter((g) => g.reports.length > 0) };
 }
