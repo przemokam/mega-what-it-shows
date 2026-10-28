@@ -4,7 +4,7 @@ title: '#4471 is three problems, not one'
 owner: przemokam
 status: proposed
 reviewed: 2026-10-28
-signature: 'Przemek Kamola (przemokam), with Claude Code'
+signature: 'v1.eyJzdWIiOiIyNDYiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzIyMzkxNSwiZXhwIjoxNzkzMzEwMzE1fQ.v4gmwaL6RwgJUhXqVEZvh1gdo35-z4SgUGECKIZDaHc'
 ---
 
 <script>
