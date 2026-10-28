@@ -1,0 +1,67 @@
+---
+layout: runbook
+title: '#4471 is three problems, not one'
+owner: przemokam
+status: proposed
+reviewed: 2026-10-28
+signature: 'Przemek Kamola (przemokam), with Claude Code'
+---
+
+<script>
+  import ProblemSplit from '#lib/kb/ProblemSplit.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) says: one issue, the parser, fix queued. The reports say more.
+Read by what each one shows, not by its subject line, they split into three problems.
+Each has its own ticket now.
+
+<Callout kind="warn">
+Fixing the parser closes only the first row. The other two keep coming after the fix ships.
+</Callout>
+
+## The split
+
+<ProblemSplit ticket={4471} />
+
+## The three problems
+
+**`parser`: the shared parser reads every date month first.** Our tenants write the day first,
+so 7 April comes out as 4 July. Every report shows a day and a month swapped. It reaches the
+desk from the app, by email and through `booking-v2` forms. This is the bug #4471 describes.
+
+**`hint`: `booking-v3` prints `MM/DD/YYYY` under its date field.** Tenants on `booking-v3` are
+day-first. Their people type what the hint tells them, month first, and the form reads it the
+tenant's way. The result looks the same as `parser`, a swap, but the parser fix does not touch
+it: the hint is wrong. Only reports sent through a `booking-v3` form. Intake tags these by the
+reporter's browser (`en-US`), which is a guess: it misses some and tags others that are not.
+
+**`shift`: the booking moves one day back.** Tuesday 12 May shows as Monday 11 May. The
+month stays. One meeting lands on Tuesday in Lisbon and Monday in Toronto; an invite arrives
+before the booking was made. That is a timezone problem, not a date-order one, and no date
+parser fix reaches it. The desk already noted these reports as a one-day move
+(`desk-notes.json`), and the #4471 table filed them under `parser` by tenant anyway.
+
+## One report from each
+
+<ProblemSplit ticket={4471} examples />
+
+## Why one ticket hid three
+
+[Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on the subject line alone.
+Every subject here is some version of "the date is wrong", so every report landed in one ticket. The
+subject tells you the symptom; the body, the tenant's locale and its booking form tell you the
+cause. The table above runs `causes.ts` on every build, plus the desk's one-day-move notes, so
+it stays right as more reports are merged.
+
+## What to do
+
+- Engineering: three fixes, three tickets. Ship the parser fix, then check the `hint` and `shift`
+  rows still grow; they should, until their own fixes land.
+- Desk: until then, triage a new "wrong day" report by its body and tenant, not its subject.
+  A swap through a `booking-v3` form is `hint`; a one-day move is `shift`; any other swap from a
+  day-first tenant is `parser`.
+- 0001 stays as it was accepted. Replacing it is a new decision record.
+
+<RenderStamp {signature} />
