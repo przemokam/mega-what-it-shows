@@ -42,9 +42,9 @@ Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
 Ticket #4471 merged 412 reports by subject line. Read by what each report shows, it is three
 problems, filed as issues in this repo:
 
-- [#1](../../issues/1) `parser` — shared parser reads day-first dates month first
-- [#2](../../issues/2) `hint` — `booking-v3` date hint says `MM/DD/YYYY` to day-first tenants
-- [#3](../../issues/3) `shift` — bookings move one day back (timezone)
+- [#1](../../issues/1) `parser` — shared parser reads day-first dates month first · closed, fixed
+- [#2](../../issues/2) `hint` — `booking-v3` date hint says `MM/DD/YYYY` to day-first tenants · closed, won't fix (form retired)
+- [#3](../../issues/3) `shift` — bookings move one day back (timezone) · **open**, no fix yet
 
 The kb page about them: [`src/routes/kb/incidents/4471/split/+page.svx`](src/routes/kb/incidents/4471/split/+page.svx).
 As the desk sees it: [`rendered/kb/incidents/4471/split/index.html`](rendered/kb/incidents/4471/split/index.html)

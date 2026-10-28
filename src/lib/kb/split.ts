@@ -4,10 +4,11 @@ import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 export type Problem = 'parser' | 'hint' | 'shift';
 
 // One ticket per problem, filed in the public repo that holds this kb.
-export const PROBLEMS: readonly { problem: Problem; title: string; issue: number }[] = [
-  { problem: 'parser', title: 'Shared parser reads day-first dates month first', issue: 1 },
-  { problem: 'hint', title: 'booking-v3 date hint says MM/DD/YYYY to day-first tenants', issue: 2 },
-  { problem: 'shift', title: 'Bookings move one day back (timezone)', issue: 3 },
+// `state` follows engineering's update on #4471 (closed 5 Oct 2026).
+export const PROBLEMS: readonly { problem: Problem; title: string; issue: number; state: 'fixed' | "won't fix" | 'open'; why: string }[] = [
+  { problem: 'parser', title: 'Shared parser reads day-first dates month first', issue: 1, state: 'fixed', why: 'fix(dates): parse dd/mm for eu locales' },
+  { problem: 'hint', title: 'booking-v3 date hint says MM/DD/YYYY to day-first tenants', issue: 2, state: "won't fix", why: 'booking-v3 form retired' },
+  { problem: 'shift', title: 'Bookings move one day back (timezone)', issue: 3, state: 'open', why: 'no fix yet: neither change above touches it' },
 ];
 
 export const ISSUES = 'https://github.com/przemokam/mega-what-it-shows/issues';

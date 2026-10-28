@@ -18,7 +18,8 @@ Read by what each one shows, not by its subject line, they split into three prob
 Each has its own ticket now.
 
 <Callout kind="warn">
-Fixing the parser closes only the first row. The other two keep coming after the fix ships.
+#4471 closed on 5 October with the parser fixed and booking-v3 retired. That ends two of the
+three problems. The one-day move (<code>shift</code>) has no fix and its ticket stays open.
 </Callout>
 
 ## The split
@@ -57,13 +58,18 @@ cause. The table above counts the way the desk counts: `causes.ts` on every buil
 under the cause it is filed under, plus the desk's one-day-move notes. So it stays right as more
 reports are merged.
 
+## After #4471 closed
+
+Engineering closed #4471 on 5 October: `fix(dates): parse dd/mm for eu locales` fixes `parser`,
+and `hint` is won't fix because the `booking-v3` form is retired. Neither change touches time
+zones, so a booking can still move one day back. Closing #4471 as one issue would have hidden that.
+
 ## What to do
 
-- Engineering: three fixes, three tickets. Ship the parser fix, then check the `hint` and `shift`
-  rows still grow; they should, until their own fixes land.
-- Desk: until then, triage a new "wrong day" report by its body and tenant, not its subject.
-  A swap through a `booking-v3` form is `hint`; a one-day move is `shift`; any other swap from a
-  day-first tenant is `parser`.
+- Engineering: `shift` needs its own fix. Ticket #3 stays open until it lands.
+- Desk: a new "wrong day" report after 5 October is most likely `shift`. Triage it by its body and
+  tenant, not its subject: a one-day move is `shift`; a day and month swap means the parser fix
+  did not reach that tenant, so reopen #1.
 - 0001 stays as it was accepted. Replacing it is a new decision record.
 
 <RenderStamp {signature} />

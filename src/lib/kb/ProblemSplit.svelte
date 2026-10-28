@@ -26,7 +26,7 @@
 
 <table>
   <thead>
-    <tr><th>problem</th><th>reports</th><th>ticket</th><th>tenants</th><th>channels</th><th>seen</th></tr>
+    <tr><th>problem</th><th>reports</th><th>ticket</th><th>state</th><th>tenants</th><th>channels</th><th>seen</th></tr>
   </thead>
   <tbody>
     {#each split.groups as g (g.problem)}
@@ -35,6 +35,7 @@
         <td><code>{g.problem}</code>{#if m}<br /><span class="title">{m.title}</span>{/if}</td>
         <td><strong>{g.reports.length}</strong></td>
         <td>{#if m}<a href="{ISSUES}/{m.issue}">#{m.issue}</a>{:else}none yet{/if}</td>
+        <td class:open={m?.state === 'open'}>{m?.state ?? '—'}{#if m}<br /><span class="title">{m.why}</span>{/if}</td>
         <td>{g.tenants.length}</td>
         <td class="small">{channels(g.channels)}</td>
         <td class="small">{g.firstSeen} → {g.lastSeen}</td>
@@ -64,5 +65,6 @@
   .title { color: var(--muted); font-size: 0.85em; }
   .small { color: var(--muted); font-size: 0.85em; }
   .unplaced td { background: var(--warn-bg); }
+  .open { color: var(--warn); font-weight: 600; }
   blockquote { margin: 0.5rem 0; padding: 0.25rem 0.75rem; border-left: 3px solid var(--line); color: var(--muted); font-size: 0.9em; }
 </style>
